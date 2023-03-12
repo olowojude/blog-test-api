@@ -7,15 +7,22 @@ from rest_framework import status
 
 from apitut import serializers
 
+
 @api_view(["GET", "POST"])
 def post_list(request, format=None):
     if request.method == "GET":
         posts = BlogPosts.objects.all()
+        post_title = request.query_params.get("title")
+
+        if post_title:
+            posts = posts.filter(title=post_title)
+
         serializer = BlogPostSerializers(posts, many=True)
         return Response(serializer.data)
 
     if request.method == "POST":
         serializer = BlogPostSerializers(data=request.data)
+        print(request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
